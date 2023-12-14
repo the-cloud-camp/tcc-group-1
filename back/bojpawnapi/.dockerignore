@@ -1,0 +1,12 @@
+**/[b|B]in/
+**/[O|o]bj/
+sampleSchema.png
+readme.md
+**/bin/
+**/obj/
+**/global.json
+**/Dockerfile*
+**/.dockerignore*
+**/*.user
+.vscode/
+.yaml

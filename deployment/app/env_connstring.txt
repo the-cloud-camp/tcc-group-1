@@ -1,0 +1,1 @@
+User ID =boj;Server=cockroachdb-public.group-1-bojdev;Port=26257;Database=bojpawndb;

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    app: cockroachdb
+  name: boj-cockroachdb-pv-b
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 4Gi
+  hostPath:
+    path: /opt/app/group-1-boj/b
+    type: ""
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: boj-local-storage
+  volumeMode: Filesystem
