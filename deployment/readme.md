@@ -1,7 +1,7 @@
 # App
 
 ```
-kubectl create configmap bojpawnapiconfig --from-file=../../back/bojpawnapi/appsettings.json --from-file=../../back/bojpawnapi/appsettings.Development.json -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnapiconfig1.yaml
+kubectl create configmap bojpawnapiconfig --from-file=../../back/bojpawnapi/appsettings.json --from-file=../../back/bojpawnapi/appsettings.Development.json -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnapiconfig.yaml
 
 #kubectl create secret generic bojpawnapisecret --from-literal=secretmessage=mysecret -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnapisecret.yaml
 
@@ -17,7 +17,7 @@ kubectl autoscale deployment bojpawnapiconfig --cpu-percent=70 --min=1 --max=3 -
 
 Apply Change
 
-kubectl get deployment,pod,svc -n group-1-bojdev 
+kubectl get deployment,pod,svc,sts -n group-1-bojdev 
 
 # Export BackEnd for Dev
 
