@@ -133,7 +133,7 @@ dotnet ef migrations add secodtmigration
 
 ```bash
 https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-7.0
-
+ 
 dotnet add package AspNetCore.HealthChecks.Npgsql
 ```
 System.InvalidOperationException: Unable to resolve service for type 'bojpawnapi.Service.ICollateralService' while attempting to activate 'bojpawnapi.Controller.CollateralsController'.
