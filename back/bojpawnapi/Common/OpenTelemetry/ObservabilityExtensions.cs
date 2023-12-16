@@ -18,7 +18,7 @@ namespace bojpawnapi.Common.OpenTelemetry;
 public static class ObservabilityRegistration
 {
     public const string ExportGRPC = "Grpc";
-    public const string ExportHttp = "Otlp";
+    public const string ExportHttpProtobuf = "HttpProtobuf";
     public static ActivitySource ActivitySource = null;
     public static WebApplicationBuilder AddObservability(this WebApplicationBuilder builder)
     {
@@ -83,7 +83,7 @@ public static class ObservabilityRegistration
                 {
                     options.Endpoint = observabilityOptions.CollectorUri;
                     options.ExportProcessorType = ExportProcessorType.Batch;
-                    options.Protocol = OtlpExportProtocol.Grpc;
+                    options.Protocol = GetOtlpExportProtocol(observabilityOptions.CollectorProtocol);
                 });
         });
 
@@ -126,7 +126,8 @@ public static class ObservabilityRegistration
                     options.Endpoint = observabilityOptions.CollectorUri;
                     options.ExportProcessorType = ExportProcessorType.Batch;
                     //https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.OpenTelemetryProtocol/README.md
-                    options.Protocol = OtlpExportProtocol.Grpc;
+                    //options.Protocol = OtlpExportProtocol.Grpc;
+                    options.Protocol = GetOtlpExportProtocol(observabilityOptions.CollectorProtocol);
                 });
         });
 
@@ -188,6 +189,19 @@ public static class ObservabilityRegistration
         return hostBuilder;
     }
 
-
-
+    public static OtlpExportProtocol GetOtlpExportProtocol(string pProtocol)
+    {
+        if (ExportGRPC.Equals(pProtocol))
+        {
+            return OtlpExportProtocol.Grpc;
+        }
+        else if (ExportHttpProtobuf.Equals(pProtocol))
+        {
+            return OtlpExportProtocol.HttpProtobuf;
+        }
+        else
+        {
+            throw new ArgumentException($"Invalid protocol {pProtocol}");
+        }
+    }
 }
