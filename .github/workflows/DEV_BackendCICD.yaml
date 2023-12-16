@@ -80,9 +80,6 @@ jobs:
         needs: build-backend
         runs-on: ubuntu-latest
         environment: dev
-        defaults:
-          run:
-            working-directory: ./back/bojpawnapi
         steps:
         - name: Clone non-prd repository
           uses: actions/checkout@v3
@@ -94,6 +91,8 @@ jobs:
 
         - name: pwd 0
           run: |
+            ls
+            cd tcc-k8s-config-nonprd
             ls
 
         - name: Deploy microservice
