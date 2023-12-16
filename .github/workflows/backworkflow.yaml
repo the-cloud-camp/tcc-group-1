@@ -11,6 +11,11 @@ on:
     paths:
     - back/**
 
+env:
+    # Use docker.io for Docker Hub if empty
+    # REGISTRY: ghcr.io
+    # github.repository as <account>/<repo>
+    IMAGE_NAME: "bojpawnapi"
 jobs:
     build-backend:
         runs-on: ubuntu-latest   
@@ -53,7 +58,7 @@ jobs:
               uses: docker/metadata-action@v5
               with:
                images: |
-                 name/app
+                ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
                tags: |
                  type=sha,prefix=${{ vars.ENV }}-
 
