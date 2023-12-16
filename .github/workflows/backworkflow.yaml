@@ -21,7 +21,7 @@ jobs:
         runs-on: ubuntu-latest   
         outputs:
             image_tag: ${{ steps.meta.outputs.tags }}
-        environment: dev
+        #environment: dev
         defaults:
             run:
               working-directory: ./back/bojpawnapi
@@ -60,7 +60,7 @@ jobs:
                images: |
                 ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
                tags: |
-                 type=sha,prefix=${{ vars.ENV }}-
+                 type=sha,prefix=dev-
 
             # Build and push Docker image with Buildx (don't push on PR)
             # https://github.com/docker/build-push-action
