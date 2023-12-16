@@ -3,7 +3,7 @@ name: Backend_Deployment
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "feature/bojbackOpentelemetry" ]
     paths:
     - back/**
   pull_request:
