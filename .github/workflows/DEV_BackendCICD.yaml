@@ -17,7 +17,7 @@ env:
     # github.repository as <account>/<repo>
     IMAGE_NAME: "bojpawnapi"
 jobs:
-    build-backend:
+    build_backend:
         runs-on: ubuntu-latest   
         outputs:
           image_tag: ${{ steps.meta.outputs.tags }}
@@ -59,7 +59,7 @@ jobs:
           uses: docker/metadata-action@v5
           with:
             images: |
-              ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+              ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
             tags: |
               type=sha,prefix=dev-
 
@@ -76,8 +76,8 @@ jobs:
             labels: ${{ steps.meta.outputs.labels }}
         #https://github.com/the-cloud-camp/project-demo/blob/main/.github/workflows/publish.yml
 
-    publish-deploy:
-        needs: build-backend
+    update_deployment:
+        needs: build_backend
         #if: ${{ github.ref == 'refs/heads/develop' && github.event_name == 'push' }}
         runs-on: ubuntu-latest
         environment: dev
@@ -93,13 +93,13 @@ jobs:
         - name: Echo Image Tag
           working-directory: tcc-k8s-config-nonprd
           run: |
-            echo "${{ needs.build-backend.outputs.image_tag }}"
+            echo "${{ needs.build_backend.outputs.image_tag }}"
 
         - name: Replace Docker Image with Commit SHA
           id: Replace_Docker_Image
           uses: mikefarah/yq@master
           with:
-            cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.build-backend.outputs.image_tag }}"' tcc-k8s-config-nonprd/manifest/dev_bojpawnapi.yaml
+            cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.build_backend.outputs.image_tag }}"' tcc-k8s-config-nonprd/manifest/dev_bojpawnapi.yaml
 
         - name: Echo Image Tag
           working-directory: tcc-k8s-config-nonprd

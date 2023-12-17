@@ -54,7 +54,7 @@ kubectl port-forward service/cockroachdb-public 8080 -n group-1-bojdev
 Web GUI : https://localhost:8080
 
 Access DB
-
+ 
 ```bash
 kubectl port-forward service/cockroachdb-public 26257 -n group-1-bojdev
 ```
