@@ -4,11 +4,11 @@ name: DEV_CICD
 
 on:
   push:
-    branches: [ "feature/bojbackOpentelemetry" ]
+    branches: [ "develop" ]
     #paths:
     #- back/**
   pull_request:
-    branches:  [ "develop1" ]
+    branches:  [ "develop" ]
     #paths:
     #- back/**
 
@@ -162,7 +162,7 @@ jobs:
       if: ${{ needs.build_frontend.outputs.image_tag != '' }}
       uses: mikefarah/yq@master
       with:
-        cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.build_backend.outputs.image_tag }}"' tcc-k8s-config-nonprd/manifest/dev_bojpawnfront.yaml
+        cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.build_frontend.outputs.image_tag }}"' tcc-k8s-config-nonprd/manifest/dev_bojpawnfront.yaml
   
     - name: Replace Docker Image ${{ env.BACKPAWN_IMAGE_NAME }} with Commit SHA
       id: Replace_Docker_Image_Backend
