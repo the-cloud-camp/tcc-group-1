@@ -153,22 +153,29 @@ jobs:
         ref: group-1
 
     - name: Echo Image Tag
-      working-directory: tcc-k8s-config-nonprd
       run: |
         echo "${{ needs.build_frontend.outputs.image_tag }}"
         echo "${{ needs.build_backend.outputs.image_tag }}"
 
+    - name: Replace Docker Image ${{ env.FRONTPAWN_IMAGE_NAME }} with Commit SHA
+      id: Replace_Docker_Image_frontend
+      if: ${{ needs.build_frontend.outputs.image_tag != '' }}
+      uses: mikefarah/yq@master
+      with:
+        cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.build_backend.outputs.image_tag }}"' tcc-k8s-config-nonprd/manifest/dev_bojpawnfront.yaml
+  
     - name: Replace Docker Image ${{ env.BACKPAWN_IMAGE_NAME }} with Commit SHA
-      id: Replace_Docker_Image
+      id: Replace_Docker_Image_Backend
       if: ${{ needs.build_backend.outputs.image_tag != '' }}
       uses: mikefarah/yq@master
       with:
         cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.build_backend.outputs.image_tag }}"' tcc-k8s-config-nonprd/manifest/dev_bojpawnapi.yaml
 
-    - name: Echo Image Tag
+    - name: Echo Deployment Tag
       working-directory: tcc-k8s-config-nonprd
       run: |
-        cat manifest/dev_bojpawnapi.yaml'
+        cat manifest/dev_bojpawnfront.yaml
+        cat manifest/dev_bojpawnapi.yaml
 
     - name: Update repository
       working-directory: tcc-k8s-config-nonprd

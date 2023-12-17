@@ -2,7 +2,7 @@
 
 cd front/BankOfJumpbox
 docker buildx build --push --platform linux/amd64 -t pingkunga/bojpawnfront:0.0.1 .
-
+ 
 
 # Test Frontend
 
