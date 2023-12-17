@@ -24,8 +24,7 @@ jobs:
     outputs:
       frontend: ${{ steps.changes.outputs.frontend }}
       backend: ${{ steps.changes.outputs.backend }}
-    permissions:
-      contents: write    #Error: Resource not accessible by integration
+    permissions: write-all #Error: Resource not accessible by integration
     environment: dev
     steps:
     - uses: actions/checkout@v3
