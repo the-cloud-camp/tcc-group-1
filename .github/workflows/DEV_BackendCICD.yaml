@@ -78,7 +78,7 @@ jobs:
 
     publish-deploy:
         needs: build-backend
-        if: ${{ github.ref == 'refs/heads/develop' && github.event_name == 'push' }}
+        #if: ${{ github.ref == 'refs/heads/develop' && github.event_name == 'push' }}
         runs-on: ubuntu-latest
         environment: dev
         steps:
