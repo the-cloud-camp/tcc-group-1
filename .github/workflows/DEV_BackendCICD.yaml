@@ -4,7 +4,7 @@ name: DEV_BACKEND_CICD
 
 on:
   push:
-    branches: [ "feature/bojbackOpentelemetry" ]
+    branches: [ "feature/bojbackOpentelemetry1" ]
     paths:
     - back/**
   pull_request:

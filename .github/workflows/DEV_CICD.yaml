@@ -1,0 +1,179 @@
+#https://github.com/the-cloud-camp/project-demo/blob/main/.github/workflows/publish.yml
+
+name: DEV_CICD
+
+on:
+  push:
+    branches: [ "feature/bojbackOpentelemetry" ]
+    #paths:
+    #- back/**
+  pull_request:
+    branches:  [ "develop1" ]
+    #paths:
+    #- back/**
+
+env:
+  # Use docker.io for Docker Hub if empty
+  # REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  FRONTPAWN_IMAGE_NAME: "bojpawnfront"
+  BACKPAWN_IMAGE_NAME: "bojpawnapi"
+jobs:
+  check_change:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.changes.outputs.frontend }}
+      backend: ${{ steps.changes.outputs.backend }}
+    environment: dev
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dorny/paths-filter@v2
+      id: changes
+      with:
+        filters: |
+          frontend:
+            - 'front/**'
+          backend:
+            - 'back/**'
+ 
+  build_frontend:
+    needs: check_change
+    if: ${{ needs.check_change.outputs.frontend == 'true' }}
+    runs-on: ubuntu-latest   
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}  #ห้ามมี Secret ใน output ไม่งั้นมันไม่ส่งออกไปให้ Job อื่นใช้ได้
+    environment: dev
+    defaults:
+      run:
+        working-directory: ./front/BankOfJumpbox
+    permissions:
+      contents: write
+  
+    steps:
+    - uses: actions/checkout@v3
+    - name: pwd 0
+      run: pwd
+  
+    # Set up BuildKit Docker container builder to be able to build
+    # multi-platform images and export cache
+    # https://github.com/docker/setup-buildx-action
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+      
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+                  
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}
+        tags: |
+          type=sha,prefix=dev-
+  
+    # Build and push Docker image with Buildx (don't push on PR)
+    # https://github.com/docker/build-push-action
+    - name: Build and push Docker image
+      id: build-and-push
+      uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
+      with:
+        context: front/BankOfJumpbox
+        #push: ${{ github.event_name != 'pull_request' }}
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  build_backend:
+    needs: check_change
+    if: ${{ needs.check_change.outputs.backend == 'true' }}
+    runs-on: ubuntu-latest   
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}  #ห้ามมี Secret ใน output ไม่งั้นมันไม่ส่งออกไปให้ Job อื่นใช้ได้
+    environment: dev
+    defaults:
+      run:
+        working-directory: ./back/bojpawnapi
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: pwd 0
+      run: pwd
+
+    # Set up BuildKit Docker container builder to be able to build
+    # multi-platform images and export cache
+    # https://github.com/docker/setup-buildx-action
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+                
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          ${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}
+        tags: |
+          type=sha,prefix=dev-
+
+    # Build and push Docker image with Buildx (don't push on PR)
+    # https://github.com/docker/build-push-action
+    - name: Build and push Docker image
+      id: build-and-push
+      uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
+      with:
+        context: back/bojpawnapi
+        #push: ${{ github.event_name != 'pull_request' }}
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  update_deployment:
+    needs: [build_frontend, build_backend]
+    #if: ${{ github.ref == 'refs/heads/develop' && github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    environment: dev
+    
+    steps:
+    - name: Clone non-prd repository
+      uses: actions/checkout@v3
+      with:
+        repository: 'the-cloud-camp/tcc-k8s-config-nonprd'
+        token: ${{ secrets.GIT_TCC_DEPLOYMENT }}  # Use your PAT for private repositories
+        path: 'tcc-k8s-config-nonprd'
+        ref: group-1
+
+    - name: Echo Image Tag
+      working-directory: tcc-k8s-config-nonprd
+      run: |
+        echo "${{ needs.build_frontend.outputs.image_tag }}"
+        echo "${{ needs.build_backend.outputs.image_tag }}"
+
+    - name: Replace Docker Image ${{ env.BACKPAWN_IMAGE_NAME }} with Commit SHA
+      id: Replace_Docker_Image
+      if: ${{ needs.build_backend.outputs.image_tag != '' }}
+      uses: mikefarah/yq@master
+      with:
+        cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.build_backend.outputs.image_tag }}"' tcc-k8s-config-nonprd/manifest/dev_bojpawnapi.yaml
+
+    - name: Echo Image Tag
+      working-directory: tcc-k8s-config-nonprd
+      run: |
+        cat manifest/dev_bojpawnapi.yaml'
+
+    - name: Update repository
+      working-directory: tcc-k8s-config-nonprd
+      run: |-
+        git config --global user.email "support@dependabot.com"
+        git config --global user.name "dependabot[bot]"
+        git commit -am "release Container Image ${{ needs.build_backend.outputs.image_tag }}"
+        git push origin group-1
