@@ -13,11 +13,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using bojpawnapi.Entities.Auth;
 using System.Text;
+using System.Security.AccessControl;
+
+//Observability
+using bojpawnapi.Common.OpenTelemetry;
+using bojpawnapi.Service.Metric;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add Observability
+builder.AddObservability();
 // Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(Program));
 
@@ -32,6 +38,9 @@ builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddScoped<ICollateralTxService, CollateralTxService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+// Add Metrics
+builder.Services.AddSingleton<PawnMetrics>();
 
 builder.Services.AddDbContext<PawnDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("BojPawnDbConnection")));
@@ -66,7 +75,6 @@ builder.Services.AddAuthentication(options =>
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTKey:Secret"]))
                     };
                 });
-
 
 builder.Services.AddCors(options =>
 {

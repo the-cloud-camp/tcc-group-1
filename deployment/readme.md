@@ -1,23 +1,45 @@
-# App
+# App 
+* frontends
+
+``` 
+kubectl create configmap bojpawnfrontconfig --from-literal=ENDPOINTBACKEND=bojpawnapi-svc.group-1-bojdev -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnfrontconfig.yaml
+
+kubectl create deployment bojpawnfront --image=pingkunga/bojpawnfront:0.0.1 -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnfront.yaml
+
+kubectl expose deployment bojpawnfront --name=bojpawnfront-svc --port=80 --target-port=3000 -n group-1-bojdev -o yaml --dry-run=client -o yaml > dev_bojpawnfront-svc.yaml
+
+kubectl autoscale deployment bojpawnfront --cpu-percent=70 --min=1 --max=3 -n group-1-bojdev --dry-run=client -oyaml > dev_bojpawnfront_hpa.yaml
+
+#Check Health in K8S
+kubectl run --rm -it --tty pingkungcurl1 -n group-1-bojdev --image=curlimages/curl --restart=Never -- bojpawnapi-svc.group-1-bojdev/health/startup
+
+``` 
+
+* backends
 
 ```
-kubectl create configmap bojpawnapiconfig --from-file=../../bojpawnapi/appsettings.json --from-file=../../bojpawnapi/appsettings.Development.json -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnapiconfig.yaml
+kubectl create configmap bojpawnapiconfig --from-file=../../back/bojpawnapi/appsettings.json --from-file=../../back/bojpawnapi/appsettings.Development.json -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnapiconfig.yaml
 
 #kubectl create secret generic bojpawnapisecret --from-literal=secretmessage=mysecret -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnapisecret.yaml
 
-kubectl create secret generic bojpawnapisecretdev --from-file="ConnectionStrings_BojPawnDbConnection"=env_connstring.txt --from-file="JWTKey_Secret"=env_secret.txt -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnapisecret.yaml
+kubectl create secret generic bojpawnapisecretdev --from-file="ConnectionStrings_BojPawnDbConnection"=env_connstring.txt --from-file="JWTKey_Secret"=env_secret.txt --from-file="ObservabilityOptions_CollectorUrl"=env_obs_url.txt -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnapisecret.yaml
 
 kubectl create deployment bojpawnapi --image=pingkunga/bojpawnapi:0.0.3 -n group-1-bojdev --dry-run=client -o yaml > dev_bojpawnapi.yaml
 
-kubectl expose deployment bojpawnapi --name=bojpawnapi-svc --port=80 --target-port=80 -n group-1-bojdev -o yaml --dry-run=client -o yaml > dev_bojpawnapi-svc.yaml
+kubectl expose deployment bojpawnapi --name=bojpawnapi-svc --port=80 --target-port=8090 -n group-1-bojdev -o yaml --dry-run=client -o yaml > dev_bojpawnapi-svc.yaml
 
-kubectl autoscale deployment bojpawnapiconfig --cpu-percent=70 --min=1 --max=3 -n group-1-bojdev --dry-run=client -oyaml > dev_bojpawnapi_hpa.yaml
+kubectl autoscale deployment bojpawnapi --cpu-percent=70 --min=1 --max=3 -n group-1-bojdev --dry-run=client -oyaml > dev_bojpawnapi_hpa.yaml
 
+
+#Check Health in K8S
+kubectl run --rm -it --tty pingkungcurl1 -n group-1-bojdev --image=curlimages/curl --restart=Never -- bojpawnapi-svc.group-1-bojdev/health/startup
+
+มันจะขึ้น Healthy / unhealthy
 ```
 
 Apply Change
 
-kubectl get deployment,pod,svc -n group-1-bojdev 
+kubectl get deployment,pod,svc,sts -n group-1-bojdev 
 
 # Export BackEnd for Dev
 

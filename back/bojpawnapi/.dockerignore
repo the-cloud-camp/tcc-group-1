@@ -1,7 +1,7 @@
 **/[b|B]in/
 **/[O|o]bj/
 sampleSchema.png
-readme.md
+*.md
 **/bin/
 **/obj/
 **/global.json

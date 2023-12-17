@@ -1,7 +1,7 @@
 # Schema
-
+ 
 ![sampleSchema](./sampleSchema.png)
-
+ 
 # How to Run
 
 Note: In dotnet 7 add -lp --launch-profile 
@@ -81,7 +81,29 @@ dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection
 
 dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version 8.0.0
 dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore --version 8.0.0
+```
 
+* OpenTelemetry: Traces & Metrics
+
+```
+#dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol --version 1.6.0
+dotnet add package OpenTelemetry.Extensions.Hosting --version 1.6.0
+dotnet add package OpenTelemetry.Instrumentation.AspNetCore --version 1.6.0-rc.1
+
+//Enables HTTP Instrumentation. App1 makes an HTTP request to App2, if we want to trace the HTTP call between these 2 apps we can do it simply by adding this extension method.
+dotnet add package OpenTelemetry.Instrumentation.Http --version 1.6.0-rc.1
+dotnet add package OpenTelemetry.Instrumentation.SqlClient --version 1.6.0-rc.1
+dotnet add package Npgsql.OpenTelemetry --version 8.0.1
+
+```
+
+* OpenTelemetry: Logs
+
+```
+dotnet add package Serilog.AspNetCore --version 8.0.0
+dotnet add package Serilog.Enrichers.Context --version 4.6.5
+dotnet add package Serilog.Sinks.OpenTelemetry --version 1.2.0
+dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol --version 1.7.0
 ```
 
 ## EF Command
@@ -111,7 +133,7 @@ dotnet ef migrations add secodtmigration
 
 ```bash
 https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-7.0
-
+ 
 dotnet add package AspNetCore.HealthChecks.Npgsql
 ```
 System.InvalidOperationException: Unable to resolve service for type 'bojpawnapi.Service.ICollateralService' while attempting to activate 'bojpawnapi.Controller.CollateralsController'.
