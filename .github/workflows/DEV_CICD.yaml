@@ -140,7 +140,7 @@ jobs:
 
   update_deployment:
     needs: [build_frontend, build_backend]
-    #if: ${{ github.ref == 'refs/heads/develop' && github.event_name == 'push' }}
+    if: ${{ github.ref == 'refs/heads/develop' && github.event_name == 'push' }}
     runs-on: ubuntu-latest
     environment: dev
     
@@ -183,5 +183,5 @@ jobs:
       run: |-
         git config --global user.email "support@dependabot.com"
         git config --global user.name "dependabot[bot]"
-        git commit -am "release Container Image ${{ needs.build_backend.outputs.image_tag }}"
+        git commit -am "release Container Image ${{ needs.build_frontend.outputs.image_tag }} ${{ needs.build_backend.outputs.image_tag }}"
         git push origin group-1
