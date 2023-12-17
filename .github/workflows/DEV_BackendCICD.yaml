@@ -101,5 +101,5 @@ jobs:
           run: |-
             git config --global user.email "support@dependabot.com"
             git config --global user.name "dependabot[bot]"
-            git commit -am "release Container Image ${{ vars.DOCKERHUB_USERNAME }}/${{ needs.build.outputs.image_tag }}"
+            git commit -am "release Container Image ${{ needs.build_backend.outputs.image_tag }}"
             git push origin group-1
