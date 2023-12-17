@@ -1,7 +1,7 @@
 # Schema
 
 ![sampleSchema](./sampleSchema.png)
-
+ 
 # How to Run
 
 Note: In dotnet 7 add -lp --launch-profile 
