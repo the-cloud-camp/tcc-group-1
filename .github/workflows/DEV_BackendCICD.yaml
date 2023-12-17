@@ -7,7 +7,7 @@ on:
     paths:
     - back/**
   pull_request:
-    branches:  [ "develop" ]
+    branches:  [ "develop1" ]
     paths:
     - back/**
 
@@ -78,6 +78,7 @@ jobs:
 
     publish-deploy:
         needs: build-backend
+        if: ${{ github.ref == 'refs/heads/develop' && github.event_name == 'push' }}
         runs-on: ubuntu-latest
         environment: dev
         steps:
@@ -89,13 +90,18 @@ jobs:
             path: 'tcc-k8s-config-nonprd'
             ref: group-1
 
-        - name: pwd 0
-          run: |
-            ls
-            cd tcc-k8s-config-nonprd
-            ls
-
-        - name: Deploy microservice
+        - name: Echo Image Tag
           working-directory: tcc-k8s-config-nonprd
           run: |
-            echo "${{ needs.build.outputs.image_tag }}"
+            echo "${{ needs.build-backend.outputs.image_tag }}"
+
+        - name: Replace Docker Image with Commit SHA
+          id: Replace_Docker_Image
+          uses: mikefarah/yq@master
+          with:
+            cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.build-backend.outputs.image_tag }}"' tcc-k8s-config-nonprd/manifest/dev_bojpawnapi.yaml
+
+        - name: Echo Image Tag
+          working-directory: tcc-k8s-config-nonprd
+          run: |
+            cat manifest/dev_bojpawnapi.yaml
