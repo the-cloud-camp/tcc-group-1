@@ -8,4 +8,4 @@
 * [Back End](/back/bojpawnapi/readme.md)
 * Deployment
   - [app/collector](/deployment/readme.md)
-  - [database](/deployment/dev_insecure/readme.md)
+  - [database](/deployment/db/dev_insecure/readme.md)
