@@ -25,3 +25,10 @@ spec:
             name: bojpawnfront-svc
             port: 
               number: 80
+      - pathType: Prefix
+        path: "/bojpawndevback(/|$)(.*)"
+        backend:
+          service:
+            name: bojpawnapi-svc
+            port: 
+              number: 80

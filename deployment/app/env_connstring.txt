@@ -1,1 +1,1 @@
-User ID =boj;Server=cockroachdb-public.group-1-bojdev;Port=26257;Database=bojpawndb;
+User ID =boj;Server=cockroachdb-public.group-1-db;Port=26257;Database=bojpawndb;

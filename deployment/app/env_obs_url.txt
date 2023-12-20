@@ -1,1 +1,1 @@
-http://localhost:4317
+http://bojappobs-svc.group-1-obs:4317

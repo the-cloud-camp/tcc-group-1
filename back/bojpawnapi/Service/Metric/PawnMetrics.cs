@@ -50,7 +50,7 @@ public class PawnMetrics
     public void RecordNumberOfCollateral(int count) => NumberOfCollateralPerContractsHistogram.Record(count);
 
     //Customer Metric
-    public void IncreaseCustomer() => TotalCollateralUpDownCounter.Add(1);
-    public void DecreaseCustomer() => TotalCollateralUpDownCounter.Add(-1);
+    public void IncreaseCustomer() => CurrentCustomerCounter.Add(1);
+    public void DecreaseCustomer() => CurrentCustomerCounter.Add(-1);
 
 }
