@@ -18,6 +18,7 @@ using System.Security.AccessControl;
 //Observability
 using bojpawnapi.Common.OpenTelemetry;
 using bojpawnapi.Service.Metric;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -96,10 +97,11 @@ app.UseHttpsRedirection();
 
 //FOR AUTHEN
 app.UseAuthentication();
-
 app.UseAuthorization();
 app.UseCors("Open");
 app.MapControllers();
+
+app.UseSerilogRequestLogging();     //https://github.com/serilog/serilog-aspnetcore?tab=readme-ov-file#request-logging
 
 app.MapHealthChecks("/health/ready");
 app.MapHealthChecks("/health/startup", new HealthCheckOptions { Predicate = x => x.Tags.Contains("startup") });        
