@@ -9,3 +9,5 @@
 * Deployment
   - [app/collector](/deployment/readme.md)
   - [database](/deployment/db/dev_insecure/readme.md)
+* Dev Swagger: https://tcc-01.th1.proen.cloud/bojpawndevback/swagger/index.html
+* End Point: https://tcc-01.th1.proen.cloud/bojpawndev
