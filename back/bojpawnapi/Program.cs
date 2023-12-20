@@ -19,6 +19,7 @@ using System.Security.AccessControl;
 using bojpawnapi.Common.OpenTelemetry;
 using bojpawnapi.Service.Metric;
 using Serilog;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,7 +90,15 @@ app.Logger.LogInformation("Key String: " + builder.Configuration["JWTKey:Secret"
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger(opt =>
+    {
+       opt.PreSerializeFilters.Add((swagger, httpReq) =>
+       {
+            var serverUrl = $"https://tcc-01.th1.proen.cloud/bojpawndevback";
+            var serverUrl2 = $"https://{httpReq.Host}/";
+            swagger.Servers = new List<OpenApiServer>{new() { Url = serverUrl }, new() { Url = serverUrl2 }};
+       });
+    });
     app.UseSwaggerUI();
 }
 
