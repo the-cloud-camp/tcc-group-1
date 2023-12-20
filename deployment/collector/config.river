@@ -1,0 +1,87 @@
+logging {
+  level  = "debug"
+  format = "logfmt"
+}
+
+otelcol.receiver.otlp "example" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    //metrics = [otelcol.processor.batch.default.input]
+    metrics = [otelcol.exporter.prometheus.default.input]
+    //logs    = [otelcol.processor.batch.default.input]
+    logs = [otelcol.exporter.loki.default.input]
+    //traces  = [otelcol.processor.batch.default.input]
+    //traces  = [otelcol.exporter.otlphttp.tempo.input]
+    traces  = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    metrics = [otelcol.exporter.logging.default.input]
+    logs    = [otelcol.exporter.logging.default.input]
+    traces  = [otelcol.exporter.logging.default.input]
+  }
+}
+
+otelcol.exporter.logging "default" {
+    verbosity           = "detailed"
+    sampling_initial    = 1
+    sampling_thereafter = 1
+}
+
+otelcol.exporter.loki "default" {
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "https://logs-prod-020.grafana.net/loki/api/v1/push"
+    basic_auth {
+      username = "766997"
+      password = "glc_eyJvIjoiMTAxMjY1NCIsIm4iOiJib2pvYnMtYm9qb2JzIiwiayI6IlQ1ZnpiUVc2MDUwT1AyT1kzMWRBTjN4NiIsIm0iOnsiciI6InVzIn19"
+    }
+  }
+}
+
+otelcol.exporter.prometheus "default" {
+  forward_to = [prometheus.remote_write.mimir.receiver]
+}
+
+prometheus.remote_write "mimir" {
+  endpoint {
+    url = "https://prometheus-prod-37-prod-ap-southeast-1.grafana.net/api/prom/push"
+    basic_auth {
+      username = "1335923"
+      password = "glc_eyJvIjoiMTAxMjY1NCIsIm4iOiJib2pvYnMtYm9qb2JzIiwiayI6IlQ1ZnpiUVc2MDUwT1AyT1kzMWRBTjN4NiIsIm0iOnsiciI6InVzIn19"
+      //password = "glc_eyJvIjoiMTAxMjY1NCIsIm4iOiJzdGFjay04MTM3NTAtaG0tcmVhZC1ib2pwcm9tZXRoZXVzIiwiayI6IjYzRHBCNU80NDR0SDgyVVNYbVhuOTR5eCIsIm0iOnsiciI6InByb2QtYXAtc291dGhlYXN0LTEifX0="
+    }
+  }
+}
+
+
+//otelcol.exporter.otlp > gRPC
+//otelcol.exporter.otlphttp > HTTP
+otelcol.exporter.otlp "tempo" {
+    client {
+        endpoint = "https://tempo-prod-14-prod-ap-southeast-1.grafana.net:443"
+        auth     = otelcol.auth.basic.creds.handler
+        //tls {
+        //    insecure             = true
+        //    insecure_skip_verify = true
+        //}
+    }
+}
+
+otelcol.auth.basic "creds" {
+  username = "765849"
+  password = "glc_eyJvIjoiMTAxMjY1NCIsIm4iOiJib2pvYnMtYm9qb2JzIiwiayI6IlQ1ZnpiUVc2MDUwT1AyT1kzMWRBTjN4NiIsIm0iOnsiciI6InVzIn19"
+  //password = "glc_eyJvIjoiMTAxMjY1NCIsIm4iOiJzdGFjay04MTM3NTAtaHQtcmVhZC1ib2p0ZW1wbyIsImsiOiIyajU4SGNSZjhRUzg4YTBaODRoSkI5aWUiLCJtIjp7InIiOiJwcm9kLWFwLXNvdXRoZWFzdC0xIn19"
+  // password = env("API_KEY")
+}
