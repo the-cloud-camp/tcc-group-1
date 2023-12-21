@@ -87,39 +87,19 @@ jobs:
     - name: Retag Front Image
       run: |
         docker login ${{ vars.DOCKER_URL }} -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-
+        echo "-----------------"
         docker pull ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_front }}
+        echo "-----------------"
         docker tag  ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_front }} ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{env.FRONTPAWN_IMAGE_TAG}}
+        echo "-----------------"
         docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{env.FRONTPAWN_IMAGE_TAG}}
-     
- #     - name: Retag Image
-        #       run: |
-        #         export original_tag="${{ needs.checkout_image.outputs.previous_tag }}"
-        #         source $GITHUB_ENV
-        #         export new_tag=$IMAGE_TAG
-      
-        #         # Assuming you are using Docker
-        #         docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$original_tag
-        #         docker tag  ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$original_tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$new_tag
-        #         docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$new_tag
-        
-        
-
-        #     - name: Log into registry ${{ env.REGISTRY }}
-        #       if: github.event_name != 'pull_request'
-        #       uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
-        #       with:
-        #         registry: ${{ env.REGISTRY }}
-        #         username: ${{ github.actor }}
-        #         password: ${{ secrets.GITHUB_TOKEN }}
-      
-        #     - name: Retag Image
-        #       run: |
-        #         export original_tag="${{ needs.checkout_image.outputs.previous_tag }}"
-        #         source $GITHUB_ENV
-        #         export new_tag=$IMAGE_TAG
-      
-        #         # Assuming you are using Docker
-        #         docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$original_tag
-        #         docker tag  ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$original_tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$new_tag
-        #         docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$new_tag
+    
+    - name: Retag API Image
+      run: |
+        docker login ${{ vars.DOCKER_URL }} -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+        echo "-----------------"
+        docker pull ${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_api }}
+        echo "-----------------"
+        docker tag  ${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_api }} ${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{env.BACKPAWN_IMAGE_TAG}}
+        echo "-----------------"
+        docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{env.BACKPAWN_IMAGE_TAG}}     
