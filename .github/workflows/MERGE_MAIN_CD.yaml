@@ -3,7 +3,7 @@ name: MERGE_MAIN_CD
 #retag the image
 on:
  push:
-  branches: [ "feature/bojbackOpentelemetry" ]
+  branches: [ "main" ]
 
 env:
   FRONTPAWN_IMAGE_NAME: "bojpawnfront"
