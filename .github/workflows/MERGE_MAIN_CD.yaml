@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       previous_tag_front: ${{ steps.metafront.outputs.previous_tag_front }}
-      previous_tag_api: ${{ steps.metafront.outputs.previous_tag_api }}
+      previous_tag_api: ${{ steps.metaapi.outputs.previous_tag_api }}
     environment: prod
     permissions:
       contents: read
