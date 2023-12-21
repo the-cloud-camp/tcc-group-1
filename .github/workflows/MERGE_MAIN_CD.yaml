@@ -86,7 +86,7 @@ jobs:
       
     - name: Retag Front Image
       run: |
-        docker login ${{ vars.DOCKER_URL }} -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+        docker login ${{ vars.DOCKER_URL }} -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
         docker pull ${{ env.FRONTPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_front }}
         docker tag  ${{ env.FRONTPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_front }} ${{ env.FRONTPAWN_IMAGE_NAME }}:${{env.FRONTPAWN_IMAGE_TAG}}
