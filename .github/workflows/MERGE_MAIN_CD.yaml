@@ -5,6 +5,10 @@ on:
  push:
   branches: [ "feature/bojbackOpentelemetry" ]
 
+env:
+  FRONTPAWN_IMAGE_NAME: "bojpawnfront"
+  BACKPAWN_IMAGE_NAME: "bojpawnapi"
+
 jobs:
   get_dev_image:
     runs-on: ubuntu-latest
@@ -59,14 +63,26 @@ jobs:
         echo "tag_front=${{ needs.get_dev_image.outputs.previous_tag_front }}"
         echo "tag_api=${{ needs.get_dev_image.outputs.previous_tag_api }}"
 
-        #   steps:
-        #     - name: Checkout tag on repository
-        #       uses: actions/checkout@v3
+    - name: Checkout tag on repository
+      uses: actions/checkout@v3
       
-        #     - name: Cat version
-        #       run: |-
-        #         cat package.json | jq -r .version
-        #         echo "IMAGE_TAG=$(cat package.json | jq -r .version)" >> $GITHUB_ENV
+    - name: Cat version Front
+      id: front_image_version
+      run: |-
+        cat front/BankOfJumpbox/package.json | jq -r .version
+        echo "FRONTPAWN_IMAGE_TAG=$(cat front/BankOfJumpbox/package.json | jq -r .version)" >> $GITHUB_ENV
+    
+    - name: Get version API
+      id: back_image_version
+      uses: KageKirin/get-csproj-version@v0
+      with:
+        file: back/bojpawnapi/bojpawnapi.csproj
+    
+    - name: Check Version
+      run: |
+        echo "BACKPAWN_IMAGE_TAG=${{ steps.back_image_version.outputs.version }}" >> $GITHUB_ENV
+        echo "tag_back=${{ needs.get_dev_image.outputs.previous_tag_front }}"
+        echo "tag_front=${{ env.FRONTPAWN_IMAGE_TAG }}"
       
         #     - name: Log into registry ${{ env.REGISTRY }}
         #       if: github.event_name != 'pull_request'
