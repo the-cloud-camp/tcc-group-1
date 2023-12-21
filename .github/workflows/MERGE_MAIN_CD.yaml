@@ -6,7 +6,7 @@ on:
   branches: [ "feature/bojbackOpentelemetry" ]
 
 jobs:
-  checkout_image:
+  get_dev_image:
     runs-on: ubuntu-latest
     outputs:
       previous_tag_front: ${{ steps.metafront.outputs.previous_tag_front }}
@@ -41,17 +41,24 @@ jobs:
       run: |
           PREVIOUS_TAG_API=$(yq e '.spec.template.spec.containers[0].image' manifest/dev_bojpawnapi.yaml | cut -d ':' -f 2)
           echo "previous_tag_api=$PREVIOUS_TAG_API" >> "$GITHUB_OUTPUT"
-        # tagging:
-        #   needs: checkout_image
-        #   runs-on: ubuntu-latest
-        #   environment: prod
-        #   permissions:
-        #     contents: read
-        #     packages: write
-        #     # This is used to complete the identity challenge
-        #     # with sigstore/fulcio when running outside of PRs.
-        #     id-token: write
+
+  re_tagging:
+    needs: get_dev_image
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
       
+    steps:
+    - name: echo tag 
+      run: |
+        echo "tag_front=${{ needs.get_dev_image.outputs.previous_tag_front }}"
+        echo "tag_api=${{ needs.get_dev_image.outputs.previous_tag_api }}"
+
         #   steps:
         #     - name: Checkout tag on repository
         #       uses: actions/checkout@v3
