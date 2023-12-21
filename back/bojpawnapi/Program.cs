@@ -96,7 +96,10 @@ if (app.Environment.IsDevelopment())
        {
             var serverUrl = $"https://tcc-01.th1.proen.cloud/bojpawndevback";
             var serverUrl2 = $"https://{httpReq.Host}/";
-            swagger.Servers = new List<OpenApiServer>{new() { Url = serverUrl }, new() { Url = serverUrl2 }};
+            var serverUrl3 = $"http://{httpReq.Host}/";
+            swagger.Servers = new List<OpenApiServer>{new() { Url = serverUrl }
+                                                    , new() { Url = serverUrl2 }
+                                                    , new() { Url = serverUrl3}};
        });
     });
     app.UseSwaggerUI();
