@@ -48,7 +48,7 @@ builder.Services.AddDbContext<PawnDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("BojPawnDbConnection")));
 
 string connString = builder.Configuration.GetConnectionString("BojPawnDbConnection");
-builder.Services.AddHealthChecks().AddNpgSql(connString, tags: new[] { "startup" });
+builder.Services.AddHealthChecks().AddNpgSql(connString, tags: new[] { "startup" }, timeout: TimeSpan.FromSeconds(5));
 
 //FOR AUTHEN
 // For Identity  
