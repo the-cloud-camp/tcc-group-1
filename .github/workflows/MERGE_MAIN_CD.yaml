@@ -88,9 +88,9 @@ jobs:
       run: |
         docker login ${{ vars.DOCKER_URL }} -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
-        docker pull ${{ env.FRONTPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_front }}
-        docker tag  ${{ env.FRONTPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_front }} ${{ env.FRONTPAWN_IMAGE_NAME }}:${{env.FRONTPAWN_IMAGE_TAG}}
-        docker push ${{ env.FRONTPAWN_IMAGE_NAME }}:${{env.FRONTPAWN_IMAGE_TAG}}
+        docker pull ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_front }}
+        docker tag  ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_front }} ${{ env.FRONTPAWN_IMAGE_NAME }}:${{env.FRONTPAWN_IMAGE_TAG}}
+        docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{env.FRONTPAWN_IMAGE_TAG}}
      
  #     - name: Retag Image
         #       run: |
