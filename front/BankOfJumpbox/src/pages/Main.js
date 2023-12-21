@@ -59,10 +59,18 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const cards = [{
-    name:'',
-    path:''
-}, 2, 3, 4];
+const cards = [
+    {
+        name: 'CUSTOMER',
+        path: '',
+        desc: 'Customer Service'
+    },
+    {
+        name:'EMPLOYEE',
+        path:'',
+        desc: 'Employee Service'
+    }
+];
 
 export default function Main() {
     const classes = useStyles();
@@ -119,19 +127,19 @@ export default function Main() {
                                     />
                                     <CardContent className={classes.cardContent}>
                                         <Typography gutterBottom variant="h5" component="h2">
-                                            Heading
+                                            {card.name}
                                         </Typography>
                                         <Typography>
-                                            This is a media card. You can use this section to describe the content.
+                                            {card.desc}
                                         </Typography>
                                     </CardContent>
                                     <CardActions>
                                         <Button size="small" color="primary">
                                             View
                                         </Button>
-                                        <Button size="small" color="primary">
+                                        {/* <Button size="small" color="primary">
                                             Edit
-                                        </Button>
+                                        </Button> */}
                                     </CardActions>
                                 </Card>
                             </Grid>
