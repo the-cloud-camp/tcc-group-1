@@ -116,7 +116,7 @@ Update database with pending migrations
 dotnet ef database update --project DbExploration.csproj
 
 ถ้ามีแก้ Field
-dotnet ef migrations add secodtmigration
+dotnet ef migrations add interestrate
 ```
 
 ## Health Check

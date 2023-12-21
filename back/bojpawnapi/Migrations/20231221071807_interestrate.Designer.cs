@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using bojpawnapi.DataAccess;
@@ -11,9 +12,11 @@ using bojpawnapi.DataAccess;
 namespace bojpawnapi.Migrations
 {
     [DbContext(typeof(PawnDBContext))]
-    partial class PawnDBContextModelSnapshot : ModelSnapshot
+    [Migration("20231221071807_interestrate")]
+    partial class interestrate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
