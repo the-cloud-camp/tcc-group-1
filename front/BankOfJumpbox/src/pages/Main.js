@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
+import { useHistory } from "react-router-dom";
 
 function Copyright() {
     return (
@@ -74,6 +75,11 @@ const cards = [
 
 export default function Main() {
     const classes = useStyles();
+    const history = useHistory();
+
+    const handleClick = () => {
+        history.push('/customer-service')
+    }
 
     return (
         <React.Fragment>
@@ -134,7 +140,7 @@ export default function Main() {
                                         </Typography>
                                     </CardContent>
                                     <CardActions>
-                                        <Button size="small" color="primary">
+                                        <Button size="small" color="primary" onClick={() => handleClick()}>
                                             View
                                         </Button>
                                         {/* <Button size="small" color="primary">
