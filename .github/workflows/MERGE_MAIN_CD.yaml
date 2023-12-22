@@ -81,7 +81,7 @@ jobs:
     - name: Check Version
       run: |
         echo "BACKPAWN_IMAGE_TAG=${{ steps.back_image_version.outputs.version }}" >> $GITHUB_ENV
-        echo "tag_back=${{ env.BACKPAWN_IMAGE_TAG }}"
+        echo "tag_back=${{ steps.back_image_version.outputs.version }}"
         echo "tag_front=${{ env.FRONTPAWN_IMAGE_TAG }}"
       
     - name: Retag Front Image

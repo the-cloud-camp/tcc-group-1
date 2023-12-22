@@ -1,0 +1,40 @@
+name: PROD_CD
+
+on:
+ push:
+  tags:
+  - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+env:
+ FRONTPAWN_IMAGE_NAME: "bojpawnfront"
+ BACKPAWN_IMAGE_NAME: "bojpawnapi"
+
+jobs:
+ get_prod_version:
+  runs-on: ubuntu-latest 
+  environment: prod
+  permissions:
+    contents: read
+    packages: write
+
+  steps:
+  - name: Checkout tag on repository
+    uses: actions/checkout@v3
+
+  - name: Cat version Front
+    id: front_image_version
+    run: |-
+      cat front/BankOfJumpbox/package.json | jq -r .version
+      echo "FRONTPAWN_IMAGE_TAG=$(cat front/BankOfJumpbox/package.json | jq -r .version)" >> $GITHUB_ENV
+  
+  - name: Get version API
+    id: back_image_version
+    uses: KageKirin/get-csproj-version@v0
+    with:
+      file: back/bojpawnapi/bojpawnapi.csproj
+  
+  - name: Check Version
+    run: |
+      echo "BACKPAWN_IMAGE_TAG=${{ steps.back_image_version.outputs.version }}" >> $GITHUB_ENV
+      echo "tag_back=${{ steps.back_image_version.outputs.version }}"
+      echo "tag_front=${{ env.FRONTPAWN_IMAGE_TAG }}"
