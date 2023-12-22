@@ -83,10 +83,10 @@ jobs:
       cat manifest/prd_bojpawnfront.yaml
       cat manifest/prd_bojpawnapi.yaml
     
-        # - name: Update repository
-        #   working-directory: tcc-k8s-config
-        #   run: |-
-        #     git config --global user.email "support@dependabot.com"
-        #     git config --global user.name "dependabot[bot]"
-        #     git commit -am "release PRD Container Image"
-        #     git push origin group-1
+  - name: Update repository
+    working-directory: tcc-k8s-config
+    run: |-
+      git config --global user.email "support@dependabot.com"
+      git config --global user.name "dependabot[bot]"
+      git commit -am "release PRD Container Image"
+      git push origin group-1
