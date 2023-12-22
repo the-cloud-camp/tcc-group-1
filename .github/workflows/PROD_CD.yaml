@@ -38,3 +38,49 @@ jobs:
       echo "BACKPAWN_IMAGE_TAG=${{ steps.back_image_version.outputs.version }}" >> $GITHUB_ENV
       echo "tag_back=${{ steps.back_image_version.outputs.version }}"
       echo "tag_front=${{ env.FRONTPAWN_IMAGE_TAG }}"
+
+
+ update_prod_deployment:
+  needs: [get_prod_version]
+  runs-on: ubuntu-latest
+  environment: prod
+        
+  steps:
+  - name: Clone non-prd repository
+    uses: actions/checkout@v3
+    with:
+      repository: 'the-cloud-camp/tcc-k8s-config'
+      token: ${{ secrets.GIT_TCC_DEPLOYMENT }}  # Use your PAT for private repositories
+      path: 'tcc-k8s-config'
+      ref: group-1
+    
+  - name: Echo Image Tag
+    run: |
+      echo "tag_front=${{ env.FRONTPAWN_IMAGE_TAG }}"
+      echo "tag_back=${{ env.BACKPAWN_IMAGE_TAG }}"
+    
+  - name: Replace Docker Image ${{ env.FRONTPAWN_IMAGE_NAME }} with Tag
+    id: Replace_Docker_Image_frontend
+    uses: mikefarah/yq@master
+    with:
+     cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ env.FRONTPAWN_IMAGE_TAG }}"' tcc-k8s-config/manifest/prd_bojpawnfront.yaml
+      
+  - name: Replace Docker Image ${{ env.BACKPAWN_IMAGE_NAME }} with Tag
+    id: Replace_Docker_Image_Backend
+    uses: mikefarah/yq@master
+    with:
+     cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{ env.BACKPAWN_IMAGE_TAG }}"' tcc-k8s-config/manifest/prd_bojpawnapi.yaml
+    
+  - name: Echo Deployment Tag
+    working-directory: tcc-k8s-config
+    run: |
+      cat manifest/prd_bojpawnfront.yaml
+      cat manifest/prd_bojpawnapi.yaml
+    
+        # - name: Update repository
+        #   working-directory: tcc-k8s-config
+        #   run: |-
+        #     git config --global user.email "support@dependabot.com"
+        #     git config --global user.name "dependabot[bot]"
+        #     git commit -am "release PRD Container Image"
+        #     git push origin group-1
