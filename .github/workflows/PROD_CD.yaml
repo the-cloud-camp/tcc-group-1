@@ -42,8 +42,8 @@ jobs:
       echo "BACKPAWN_IMAGE_TAG=${{ steps.back_image_version.outputs.version }}" >> $GITHUB_ENV
       echo "tag_back=${{ steps.back_image_version.outputs.version }}"
       echo "tag_front=${{ env.FRONTPAWN_IMAGE_TAG }}"
-      echo "prd_tag_front=${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ steps.back_image_version.outputs.version }}" >> "$GITHUB_OUTPUT"
-      echo "prd_tag_api=${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ env.FRONTPAWN_IMAGE_TAG }}" >> "$GITHUB_OUTPUT"
+      echo "prd_tag_front=${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ env.FRONTPAWN_IMAGE_TAG }}" >> "$GITHUB_OUTPUT"
+      echo "prd_tag_api=${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{ steps.back_image_version.outputs.version }}" >> "$GITHUB_OUTPUT"
 
 
  update_prod_deployment:
@@ -65,13 +65,13 @@ jobs:
       echo "tag_front=${{ needs.get_prod_version.outputs.prd_tag_front }}"
       echo "tag_back=${{ needs.get_prod_version.outputs.prd_tag_api }}"
     
-  - name: Replace Docker Image ${{ needs.get_prod_version.outputs.prd_tag_front }} with Tag
+  - name: Replace Docker Image with Tag ${{ needs.get_prod_version.outputs.prd_tag_front }}
     id: Replace_Docker_Image_frontend
     uses: mikefarah/yq@master
     with:
      cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.get_prod_version.outputs.prd_tag_front }}"' tcc-k8s-config/manifest/prd_bojpawnfront.yaml
       
-  - name: Replace Docker Image ${{ needs.get_prod_version.outputs.prd_tag_api }} with Tag
+  - name: Replace Docker Image with Tag ${{ needs.get_prod_version.outputs.prd_tag_api }} 
     id: Replace_Docker_Image_Backend
     uses: mikefarah/yq@master
     with:
