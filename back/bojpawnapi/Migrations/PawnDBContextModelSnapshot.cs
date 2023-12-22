@@ -270,6 +270,9 @@ namespace bojpawnapi.Migrations
                     b.Property<decimal>("Interest")
                         .HasColumnType("numeric");
 
+                    b.Property<decimal>("InterestRate")
+                        .HasColumnType("numeric");
+
                     b.Property<decimal>("LoanAmt")
                         .HasColumnType("numeric");
 

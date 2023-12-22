@@ -1,0 +1,92 @@
+name: PROD_CD
+
+on:
+ push:
+  tags:
+  - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+env:
+ FRONTPAWN_IMAGE_NAME: "bojpawnfront"
+ BACKPAWN_IMAGE_NAME: "bojpawnapi"
+
+jobs:
+ get_prod_version:
+  runs-on: ubuntu-latest 
+  outputs:
+    prd_tag_front: ${{ steps.metaprd.outputs.prd_tag_front }}
+    prd_tag_api: ${{ steps.metaprd.outputs.prd_tag_api }}
+  environment: prod
+  permissions:
+    contents: read
+    packages: write
+
+  steps:
+  - name: Checkout tag on repository
+    uses: actions/checkout@v3
+
+  - name: Cat version Front
+    id: front_image_version
+    run: |-
+      cat front/BankOfJumpbox/package.json | jq -r .version
+      echo "FRONTPAWN_IMAGE_TAG=$(cat front/BankOfJumpbox/package.json | jq -r .version)" >> $GITHUB_ENV
+  
+  - name: Get version API
+    id: back_image_version
+    uses: KageKirin/get-csproj-version@v0
+    with:
+      file: back/bojpawnapi/bojpawnapi.csproj
+  
+  - name: Check Version
+    id: metaprd
+    run: |
+      echo "BACKPAWN_IMAGE_TAG=${{ steps.back_image_version.outputs.version }}" >> $GITHUB_ENV
+      echo "tag_back=${{ steps.back_image_version.outputs.version }}"
+      echo "tag_front=${{ env.FRONTPAWN_IMAGE_TAG }}"
+      echo "prd_tag_front=${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ env.FRONTPAWN_IMAGE_TAG }}" >> "$GITHUB_OUTPUT"
+      echo "prd_tag_api=${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{ steps.back_image_version.outputs.version }}" >> "$GITHUB_OUTPUT"
+
+
+ update_prod_deployment:
+  needs: [get_prod_version]
+  runs-on: ubuntu-latest
+  environment: prod
+        
+  steps:
+  - name: Clone non-prd repository
+    uses: actions/checkout@v3
+    with:
+      repository: 'the-cloud-camp/tcc-k8s-config'
+      token: ${{ secrets.GIT_TCC_DEPLOYMENT }}  # Use your PAT for private repositories
+      path: 'tcc-k8s-config'
+      ref: group-1
+    
+  - name: Echo Image Tag
+    run: |
+      echo "tag_front=${{ needs.get_prod_version.outputs.prd_tag_front }}"
+      echo "tag_back=${{ needs.get_prod_version.outputs.prd_tag_api }}"
+    
+  - name: Replace Docker Image with Tag ${{ needs.get_prod_version.outputs.prd_tag_front }}
+    id: Replace_Docker_Image_frontend
+    uses: mikefarah/yq@master
+    with:
+     cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.get_prod_version.outputs.prd_tag_front }}"' tcc-k8s-config/manifest/prd_bojpawnfront.yaml
+      
+  - name: Replace Docker Image with Tag ${{ needs.get_prod_version.outputs.prd_tag_api }} 
+    id: Replace_Docker_Image_Backend
+    uses: mikefarah/yq@master
+    with:
+     cmd: yq -i '.spec.template.spec.containers.[0].image = "${{ needs.get_prod_version.outputs.prd_tag_api }}"' tcc-k8s-config/manifest/prd_bojpawnapi.yaml
+    
+  - name: Echo Deployment Tag
+    working-directory: tcc-k8s-config
+    run: |
+      cat manifest/prd_bojpawnfront.yaml
+      cat manifest/prd_bojpawnapi.yaml
+    
+  - name: Update repository
+    working-directory: tcc-k8s-config
+    run: |-
+      git config --global user.email "support@dependabot.com"
+      git config --global user.name "dependabot[bot]"
+      git commit -am "release PRD Container Image"
+      git push origin group-1

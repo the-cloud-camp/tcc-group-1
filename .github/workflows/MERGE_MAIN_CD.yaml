@@ -1,0 +1,105 @@
+name: MERGE_MAIN_CD
+
+#retag the image
+on:
+ push:
+  branches: [ "main" ]
+
+env:
+  FRONTPAWN_IMAGE_NAME: "bojpawnfront"
+  BACKPAWN_IMAGE_NAME: "bojpawnapi"
+
+jobs:
+  get_dev_image:
+    runs-on: ubuntu-latest
+    outputs:
+      previous_tag_front: ${{ steps.metafront.outputs.previous_tag_front }}
+      previous_tag_api: ${{ steps.metaapi.outputs.previous_tag_api }}
+    environment: prod
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      
+    steps:
+    - name: Clone nonprod repository
+      uses: actions/checkout@v3
+      with:
+        repository: "the-cloud-camp/tcc-k8s-config-nonprd"
+        token: ${{ secrets.GIT_TCC_DEPLOYMENT }}  # Use your PAT for private repositories
+        path: 'tcc-k8s-config-nonprd'
+        ref: group-1
+      
+    - name: Get Image Tag Front
+      shell: bash
+      id: metafront
+      working-directory: tcc-k8s-config-nonprd
+      run: |
+        PREVIOUS_TAG_FRONT=$(yq e '.spec.template.spec.containers[0].image' manifest/dev_bojpawnfront.yaml | cut -d ':' -f 2)
+        echo "previous_tag_front=$PREVIOUS_TAG_FRONT" >> "$GITHUB_OUTPUT"
+    
+    - name: Get Image Tag API
+      shell: bash
+      id: metaapi
+      working-directory: tcc-k8s-config-nonprd
+      run: |
+          PREVIOUS_TAG_API=$(yq e '.spec.template.spec.containers[0].image' manifest/dev_bojpawnapi.yaml | cut -d ':' -f 2)
+          echo "previous_tag_api=$PREVIOUS_TAG_API" >> "$GITHUB_OUTPUT"
+
+  re_tagging:
+    needs: get_dev_image
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+      
+    steps:
+    - name: echo tag 
+      run: |
+        echo "tag_front=${{ needs.get_dev_image.outputs.previous_tag_front }}"
+        echo "tag_api=${{ needs.get_dev_image.outputs.previous_tag_api }}"
+
+    - name: Checkout tag on repository
+      uses: actions/checkout@v3
+      
+    - name: Cat version Front
+      id: front_image_version
+      run: |-
+        cat front/BankOfJumpbox/package.json | jq -r .version
+        echo "FRONTPAWN_IMAGE_TAG=$(cat front/BankOfJumpbox/package.json | jq -r .version)" >> $GITHUB_ENV
+    
+    - name: Get version API
+      id: back_image_version
+      uses: KageKirin/get-csproj-version@v0
+      with:
+        file: back/bojpawnapi/bojpawnapi.csproj
+    
+    - name: Check Version
+      run: |
+        echo "BACKPAWN_IMAGE_TAG=${{ steps.back_image_version.outputs.version }}" >> $GITHUB_ENV
+        echo "tag_back=${{ steps.back_image_version.outputs.version }}"
+        echo "tag_front=${{ env.FRONTPAWN_IMAGE_TAG }}"
+      
+    - name: Retag Front Image
+      run: |
+        docker login ${{ vars.DOCKER_URL }} -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+        echo "-----------------"
+        docker pull ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_front }}
+        echo "-----------------"
+        docker tag  ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_front }} ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{env.FRONTPAWN_IMAGE_TAG}}
+        echo "-----------------"
+        docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ env.FRONTPAWN_IMAGE_NAME }}:${{env.FRONTPAWN_IMAGE_TAG}}
+    
+    - name: Retag API Image
+      run: |
+        docker login ${{ vars.DOCKER_URL }} -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+        echo "-----------------"
+        docker pull ${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_api }}
+        echo "-----------------"
+        docker tag  ${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{ needs.get_dev_image.outputs.previous_tag_api }} ${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{env.BACKPAWN_IMAGE_TAG}}
+        echo "-----------------"
+        docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ env.BACKPAWN_IMAGE_NAME }}:${{env.BACKPAWN_IMAGE_TAG}}     

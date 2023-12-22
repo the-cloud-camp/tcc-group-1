@@ -17,7 +17,8 @@ namespace bojpawnapi.DTO
         public DateTime StartDate {get; set;}
 
         public DateTime EndDate {get; set;}
-
+        
+        public decimal InterestRate {get; set;}
         public decimal Interest {get; set;}
 
         public DateTime PaidDate {get; set;}
