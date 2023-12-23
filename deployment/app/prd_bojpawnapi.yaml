@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: bojpawnapi
+  name: bojpawnapi
+  namespace: group-1-prod
+spec:
+  #replicas: 2
+  selector:
+    matchLabels:
+      app: bojpawnapi
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: bojpawnapi
+    spec:
+      containers:
+        - image: pingkunga/bojpawnapi:1.0.2
+          imagePullPolicy: Always
+          name: bojpawnapi
+          ports:
+            - containerPort: 8090
+              name: bojpawnapiport
+          resources:
+            limits:
+              cpu: 200m
+              memory: 500Mi
+            requests:
+              cpu: 100m
+              memory: 250Mi
+          startupProbe:
+            httpGet:
+              path: /health/startup
+              port: 8090
+            failureThreshold: 30
+            periodSeconds: 60
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8090
+            periodSeconds: 60
+            timeoutSeconds: 5
+            successThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /health/startup
+              port: 8090
+            initialDelaySeconds: 0
+            periodSeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: appsettings-volume
+              mountPath: /app/appsettings.json
+              subPath: appsettings.json
+            - name: appsettings-volume
+              mountPath: /app/appsettings.Development.json
+              subPath: appsettings.Development.json
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: "ConnectionStrings__BojPawnDbConnection" #APP ใช้
+              valueFrom:
+                secretKeyRef:
+                  name: bojpawnapisecretprd #ชื่อ Config
+                  key: ConnectionStrings_BojPawnDbConnection #ชื่อ key
+            - name: JWTKey__Secret #APP ใช้
+              valueFrom:
+                secretKeyRef:
+                  name: bojpawnapisecretprd #ชื่อ Config
+                  key: JWTKey_Secret #ชื่อ key
+            - name: ObservabilityOptions__CollectorUrl #APP ใช้
+              valueFrom:
+                secretKeyRef:
+                  name: bojpawnapisecretprd #ชื่อ Config
+                  key: ObservabilityOptions_CollectorUrl #ชื่อ key
+      volumes:
+        - name: appsettings-volume
+          configMap:
+            name: bojpawnapiconfig
+status: {}
