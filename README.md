@@ -10,7 +10,7 @@
   - CMD [app/collector](/deployment/readme.md)
   - CMD [database](/deployment/db/dev_insecure/readme.md)
   - GitOps
-    * Argo Config : https://github.com/the-cloud-camp/tcc-k8s-app ตอนนี้มีแยก [App Dev](https://github.com/the-cloud-camp/tcc-k8s-app/blob/main/dev/app-group-1.yaml) / [App Prod](https://github.com/the-cloud-camp/tcc-k8s-app/blob/main/prod/app-group-1.yaml) / ส่วน DB (ns group-1-db) กับ grafrana agent (ns group-1-obs) ยังไม่ได้ทำ
+    * Argo Config : https://github.com/the-cloud-camp/tcc-k8s-app ตอนนี้มีแยก [App Dev](https://github.com/the-cloud-camp/tcc-k8s-app/blob/main/dev/app-group-1.yaml) / [App Prod](https://github.com/the-cloud-camp/tcc-k8s-app/blob/main/prod/app-group-1.yaml) / ส่วน DB (ns group-1-db) กับ grafrana agent (ns group-1-obs) ทำแล้วอยู่ใน tcc-k8s-config
     * Dev : https://github.com/the-cloud-camp/tcc-k8s-config-nonprd/tree/group-1
     * Prod : https://github.com/the-cloud-camp/tcc-k8s-config/tree/group-1
 * Dev Swagger: https://tcc-01.th1.proen.cloud/bojpawndevback/swagger/index.html
