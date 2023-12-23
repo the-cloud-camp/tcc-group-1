@@ -1,7 +1,7 @@
 # App  
 * Initial
 ```bash
-kubectl create namespace group-1-bojdev
+kubectl create namespace group-1-bojdev --dry-run=client -o yaml > dev_bojpawnfront.yaml
 ```
 * frontends
 
@@ -94,6 +94,7 @@ kubectl port-forward deploy/bojappobs 4317:4317 -n group-1-obs
 
 
 kubectl run --rm -it --tty pingkungcurl1 -n group-1-bojdev --image=curlimages/curl --restart=Never -- bojappobs-svc.group-1-obs:12345
+kubectl run --rm -it --tty pingkungcurl1 -n group-1-prod --image=curlimages/curl --restart=Never -- bojappobs-svc.group-1-obs:12345
 
 ref: https://github.com/grafana/agent/blob/main/production/kubernetes/agent-loki.
 ref: https://grafana.com/docs/agent/latest/flow/setup/install/docker/
